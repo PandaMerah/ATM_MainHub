@@ -1,0 +1,30 @@
+{
+    "name": "Alarm System Working",
+    "description": "",
+    "dependencies": {
+        "core": "*",
+        "radio": "*",
+        "microphone": "*",
+        "DS1302": "github:makecode-extensions/ds1302#v1.1.0",
+        "neopixel": "github:Microsoft/pxt-neopixel#v0.7.3",
+        "pxt-esp8266": "github:cytrontechnologies/pxt-esp8266#v1.1.4",
+        "microbit-pxt-timeanddate": "github:bsiever/microbit-pxt-timeanddate#v2.0.24"
+    },
+    "files": [
+        "main.blocks",
+        "main.ts",
+        "README.md",
+        "main.py"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "targetVersions": {
+        "target": "4.0.18",
+        "targetId": "microbit"
+    },
+    "supportedTargets": [
+        "microbit"
+    ],
+    "preferredEditor": "blocksprj"
+}
