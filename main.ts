@@ -1,9 +1,14 @@
 function NotiMainBreached () {
     radio.sendString("MainBreached")
-    esp8266.sendTelegramMessage("5015383270:AAG7rdYAe3gHnLXiWF_MZEs67rWJg-bUH8o", "695144713", "PENCEROBOH PADA PINTU UTAMA")
 }
 input.onButtonPressed(Button.A, function () {
-    music.stopAllSounds()
+    if (input.buttonIsPressed(Button.B)) {
+        basic.pause(1000)
+        music.playTone(165, music.beat(BeatFraction.Eighth))
+        while (pins.digitalReadPin(DigitalPin.P3) == 1) {
+            basic.pause(4000)
+        }
+    }
 })
 function intruder () {
     if (pins.digitalReadPin(DigitalPin.P4) == 1) {
@@ -29,27 +34,9 @@ function alarm () {
     ""
     ], MelodyOptions.ForeverInBackground)
 }
-function ButtonCheck () {
-    if (pins.digitalReadPin(DigitalPin.P5) == 0) {
-        music.playTone(165, music.beat(BeatFraction.Eighth))
-        if (pins.digitalReadPin(DigitalPin.P11) == 0) {
-            music.playTone(165, music.beat(BeatFraction.Eighth))
-            basic.pause(1000)
-            while (pins.digitalReadPin(DigitalPin.P3) == 1) {
-                basic.pause(4000)
-            }
-        }
-    }
-    if (pins.digitalReadPin(DigitalPin.P6) == 0) {
-        if (pins.digitalReadPin(DigitalPin.P5) == 0) {
-        	
-        }
-    }
-}
 radio.onReceivedString(function (receivedString) {
     if (receivedString == "NodeBreached") {
         serial.writeLine("Node Detect Intruder")
-        esp8266.sendTelegramMessage("5015383270:AAG7rdYAe3gHnLXiWF_MZEs67rWJg-bUH8o", "695144713", "PENCEROBOH PADA PINTU LAIN")
         alarm()
         while (true) {
             strip.showColor(neopixel.colors(NeoPixelColors.Red))
@@ -71,8 +58,8 @@ strip = neopixel.create(DigitalPin.P16, 8, NeoPixelMode.RGB)
 let ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
 ds.start()
 serial.writeLine("" + ds.getHour() + ":" + ("" + ds.getMinute()))
-esp8266.init(SerialPin.P1, SerialPin.P2, BaudRate.BaudRate115200)
-esp8266.connectWiFi("Panda Router", "Panda1234")
+esp8266.init(SerialPin.P1, SerialPin.P0, BaudRate.BaudRate115200)
+esp8266.connectWiFi("PandaRouter", "Panda1234")
 serial.redirectToUSB()
 basic.forever(function () {
     if (pins.digitalReadPin(DigitalPin.P3) == 1) {
@@ -87,9 +74,8 @@ basic.forever(function () {
         }
     }
     if (pins.digitalReadPin(DigitalPin.P3) == 0) {
-        strip.clear()
         serial.writeLine("Pintu Tutup")
+        strip.showColor(neopixel.hsl(0, 0, 0))
     }
-    ButtonCheck()
     basic.pause(400)
 })
