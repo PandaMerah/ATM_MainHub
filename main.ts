@@ -73,6 +73,7 @@ ds.start()
 serial.writeLine("" + ds.getHour() + ":" + ("" + ds.getMinute()))
 esp8266.init(SerialPin.P1, SerialPin.P2, BaudRate.BaudRate115200)
 esp8266.connectWiFi("Panda Router", "Panda1234")
+serial.redirectToUSB()
 basic.forever(function () {
     if (pins.digitalReadPin(DigitalPin.P3) == 1) {
         serial.writeLine("Pintu Buka")
