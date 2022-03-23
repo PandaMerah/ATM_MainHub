@@ -49,10 +49,20 @@ radio.onReceivedString(function (receivedString) {
     }
 })
 input.onButtonPressed(Button.B, function () {
-    basic.pause(600)
     music.playTone(262, music.beat(BeatFraction.Whole))
-    if (input.buttonIsPressed(Button.A)) {
-        basic.pause(100)
+    basic.pause(600)
+    if (input.buttonIsPressed(Button.B)) {
+        music.playTone(262, music.beat(BeatFraction.Whole))
+        basic.pause(600)
+        if (input.buttonIsPressed(Button.A)) {
+            music.playTone(262, music.beat(BeatFraction.Whole))
+            basic.pause(600)
+            if (input.buttonIsPressed(Button.A)) {
+                music.playTone(262, music.beat(BeatFraction.Whole))
+                basic.pause(600)
+                AlarmStatus = 1
+            }
+        }
     }
 })
 function worker () {
