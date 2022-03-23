@@ -76,7 +76,7 @@ strip = neopixel.create(DigitalPin.P16, 8, NeoPixelMode.RGB)
 let ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
 ds.start()
 serial.writeLine("" + ds.getHour() + ":" + ds.getMinute())
-esp8266.init(SerialPin.P1, SerialPin.P0, BaudRate.BaudRate115200)
+esp8266.init(SerialPin.P2, SerialPin.P1, BaudRate.BaudRate115200)
 esp8266.connectWiFi("PandaRouter", "Panda1234")
 serial.redirectToUSB()
 basic.forever(function () {
