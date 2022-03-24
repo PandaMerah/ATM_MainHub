@@ -48,21 +48,21 @@ function worker () {
 let DoorTimer = 0
 let SecurityPin = 0
 let AlarmStatus = 0
+let WorkingTimeOrNot = 0
 let IsThereIntruder = 0
 let strip: neopixel.Strip = null
-let WorkingTimeOrNot = 0
 led.enable(false)
 strip = neopixel.create(DigitalPin.P16, 8, NeoPixelMode.RGB)
-let ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
-ds.start()
 esp8266.init(SerialPin.P2, SerialPin.P1, BaudRate.BaudRate115200)
 esp8266.connectWiFi("PandaRouter", "Panda1234")
-esp8266.initInternetTime(8)
 serial.redirectToUSB()
 if (esp8266.isWifiConnected()) {
+    esp8266.initInternetTime(8)
+    esp8266.updateInternetTime()
+    serial.writeLine("CT -" + "" + ":" + "")
     serial.writeLine("CT -" + esp8266.getHour() + ":" + esp8266.getMinute())
 }
-loops.everyInterval(1000, function () {
+loops.everyInterval(500, function () {
     if (pins.digitalReadPin(DigitalPin.P3) == 1) {
         serial.writeLine("Pintu Buka")
         if (WorkingTimeOrNot == 1 && AlarmStatus == 0) {
@@ -76,17 +76,18 @@ loops.everyInterval(1000, function () {
                 serial.writeLine("Pencuri - Security Pin Not Entered")
             }
             if (SecurityPin == 1) {
+                worker()
                 serial.writeLine("Owner - Security Pin Entered")
             }
         }
         if (WorkingTimeOrNot == 0 && AlarmStatus == 1) {
-            basic.pause(2000)
             if (SecurityPin == 0) {
                 intruder()
                 serial.writeLine("Pencuri - Security Pin Not Entered")
             }
             if (SecurityPin == 1) {
                 serial.writeLine("Owner - Security Pin Entered")
+                worker()
             }
         }
     }
@@ -117,16 +118,17 @@ basic.forever(function () {
                     basic.pause(200)
                     serial.writeLine("Button Pressed")
                     SecurityPin = 1
-                } else {
-                    SecurityPin = 0
+                    music.stopAllSounds()
                 }
             }
         }
     }
     if (input.buttonIsPressed(Button.AB)) {
-        DoorTimer = ds.getSecond()
+        DoorTimer = 0
         music.playTone(262, music.beat(BeatFraction.Whole))
-        if (pins.digitalReadPin(DigitalPin.P3) == 0 || DoorTimer == ds.getSecond() - 2) {
+        if (pins.digitalReadPin(DigitalPin.P3) == 0 || DoorTimer == 0) {
+            serial.writeLine("Alarm System Activated")
+            music.playTone(988, music.beat(BeatFraction.Breve))
             AlarmStatus = 1
             SecurityPin = 0
         }
