@@ -45,6 +45,7 @@ radio.onReceivedString(function (receivedString) {
 function worker () {
     strip.showColor(neopixel.colors(NeoPixelColors.White))
 }
+let DoorTimer = 0
 let SecurityPin = 0
 let AlarmStatus = 0
 let IsThereIntruder = 0
@@ -123,8 +124,9 @@ basic.forever(function () {
         }
     }
     if (input.buttonIsPressed(Button.AB)) {
+        DoorTimer = ds.getSecond()
         music.playTone(262, music.beat(BeatFraction.Whole))
-        if (pins.digitalReadPin(DigitalPin.P3) == 0 || false) {
+        if (pins.digitalReadPin(DigitalPin.P3) == 0 || DoorTimer == ds.getSecond() - 2) {
             AlarmStatus = 1
             SecurityPin = 0
         }
