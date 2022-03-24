@@ -16,6 +16,7 @@ function intruder () {
             basic.pause(100)
         }
     }
+    IsThereIntruder = 1
 }
 function alarm () {
     serial.writeLine("Alarm system activated")
@@ -29,7 +30,7 @@ function alarm () {
 input.onButtonPressed(Button.AB, function () {
     basic.pause(2000)
     if (false || false) {
-        AlarmStatus = 0
+        WorkingTimeOrNot = 0
     }
     basic.pause(4000)
 })
@@ -49,61 +50,101 @@ radio.onReceivedString(function (receivedString) {
     }
 })
 input.onButtonPressed(Button.B, function () {
-    music.playTone(262, music.beat(BeatFraction.Whole))
-    basic.pause(600)
-    if (input.buttonIsPressed(Button.B)) {
-        music.playTone(262, music.beat(BeatFraction.Whole))
-        basic.pause(600)
-        if (input.buttonIsPressed(Button.A)) {
-            music.playTone(262, music.beat(BeatFraction.Whole))
-            basic.pause(600)
-            if (input.buttonIsPressed(Button.A)) {
-                music.playTone(262, music.beat(BeatFraction.Whole))
-                basic.pause(600)
-                AlarmStatus = 1
-            }
-        }
-    }
+	
 })
 function worker () {
     strip.showColor(neopixel.colors(NeoPixelColors.White))
 }
-let strip: neopixel.Strip = null
+let SecurityPin = 0
 let AlarmStatus = 0
-AlarmStatus = 0
+let IsThereIntruder = 0
+let strip: neopixel.Strip = null
+let WorkingTimeOrNot = 0
+WorkingTimeOrNot = 0
 led.enable(false)
 strip = neopixel.create(DigitalPin.P16, 8, NeoPixelMode.RGB)
 let ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
 ds.start()
-serial.writeLine("" + ds.getHour() + ":" + ds.getMinute())
 esp8266.init(SerialPin.P2, SerialPin.P1, BaudRate.BaudRate115200)
 esp8266.connectWiFi("PandaRouter", "Panda1234")
+esp8266.initInternetTime(8)
 serial.redirectToUSB()
+if (esp8266.isWifiConnected()) {
+    serial.writeLine("CT -" + esp8266.getHour() + ":" + esp8266.getMinute())
+}
 basic.forever(function () {
-    serial.writeNumber(AlarmStatus)
     if (pins.digitalReadPin(DigitalPin.P3) == 1) {
         serial.writeLine("Pintu Buka")
-        if (AlarmStatus == 1) {
+        if (WorkingTimeOrNot == 1 && AlarmStatus == 0) {
             worker()
             serial.writeLine("Pekerja")
         }
-        if (AlarmStatus == 0) {
-            intruder()
-            serial.writeLine("Pencuri")
+        if (WorkingTimeOrNot == 1 && AlarmStatus == 1) {
+            basic.pause(2000)
+            if (SecurityPin == 0) {
+                intruder()
+                serial.writeLine("Pencuri - Security Pin Not Entered")
+            }
+            if (SecurityPin == 1) {
+                serial.writeLine("Owner - Security Pin Entered")
+            }
+        }
+        if (WorkingTimeOrNot == 0 && AlarmStatus == 1) {
+            basic.pause(2000)
+            if (SecurityPin == 0) {
+                intruder()
+                serial.writeLine("Pencuri - Security Pin Not Entered")
+            }
+            if (SecurityPin == 1) {
+                serial.writeLine("Owner - Security Pin Entered")
+            }
         }
     }
     if (pins.digitalReadPin(DigitalPin.P3) == 0) {
         serial.writeLine("Pintu Tutup")
-        strip.showColor(neopixel.hsl(0, 0, 0))
+        if (IsThereIntruder == 0) {
+            strip.showColor(neopixel.hsl(0, 0, 0))
+        }
     }
-    basic.pause(400)
+    if (input.buttonIsPressed(Button.B)) {
+        music.playTone(262, music.beat(BeatFraction.Whole))
+        basic.pause(200)
+        serial.writeLine("Button Pressed")
+        if (input.buttonIsPressed(Button.B)) {
+            music.playTone(262, music.beat(BeatFraction.Whole))
+            basic.pause(200)
+            SecurityPin = 0
+            serial.writeLine("Button Pressed")
+            if (input.buttonIsPressed(Button.A)) {
+                music.playTone(262, music.beat(BeatFraction.Whole))
+                basic.pause(200)
+                SecurityPin = 0
+                serial.writeLine("Button Pressed")
+                if (input.buttonIsPressed(Button.A)) {
+                    music.playTone(262, music.beat(BeatFraction.Whole))
+                    basic.pause(200)
+                    serial.writeLine("Button Pressed")
+                    SecurityPin = 1
+                } else {
+                    SecurityPin = 0
+                }
+            }
+        }
+    }
+    if (input.buttonIsPressed(Button.AB)) {
+        music.playTone(262, music.beat(BeatFraction.Whole))
+        if (0 == 0) {
+            AlarmStatus = 1
+            SecurityPin = 0
+        }
+    }
 })
 control.inBackground(function () {
-    basic.pause(2000)
-    if (ds.getHour() > 19) {
-        AlarmStatus = 0
+    if (esp8266.getHour() < 19) {
+        WorkingTimeOrNot = 1
     }
-    if (ds.getHour() < 19) {
-        AlarmStatus = 1
+    if (esp8266.getHour() > 19) {
+        WorkingTimeOrNot = 0
     }
+    basic.pause(5000)
 })
