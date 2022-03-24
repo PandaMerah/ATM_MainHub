@@ -22,10 +22,13 @@ function alarm () {
     serial.writeLine("Alarm system activated")
     music.startMelody([
     "c5",
-    "",
+    convertToText(0),
     "c5",
-    ""
+    convertToText(0)
     ], MelodyOptions.ForeverInBackground)
+}
+function WaitForKeypin () {
+	
 }
 radio.onReceivedString(function (receivedString) {
     if (receivedString == "NodeBreached") {
@@ -70,14 +73,17 @@ loops.everyInterval(500, function () {
             serial.writeLine("Pekerja")
         }
         if (WorkingTimeOrNot == 1 && AlarmStatus == 1) {
-            basic.pause(2000)
-            if (SecurityPin == 0) {
-                intruder()
-                serial.writeLine("Pencuri - Security Pin Not Entered")
-            }
-            if (SecurityPin == 1) {
-                worker()
-                serial.writeLine("Owner - Security Pin Entered")
+            if (pins.digitalReadPin(DigitalPin.P4) == 0) {
+                strip.showColor(neopixel.colors(NeoPixelColors.Purple))
+                basic.pause(500)
+                if (SecurityPin == 0) {
+                    intruder()
+                    serial.writeLine("Pencuri - Security Pin Not Entered")
+                }
+                if (SecurityPin == 1) {
+                    worker()
+                    serial.writeLine("Owner - Security Pin Entered")
+                }
             }
         }
         if (WorkingTimeOrNot == 0 && AlarmStatus == 1) {
