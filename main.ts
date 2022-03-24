@@ -27,13 +27,6 @@ function alarm () {
     ""
     ], MelodyOptions.ForeverInBackground)
 }
-input.onButtonPressed(Button.AB, function () {
-    basic.pause(2000)
-    if (false || false) {
-        WorkingTimeOrNot = 0
-    }
-    basic.pause(4000)
-})
 radio.onReceivedString(function (receivedString) {
     if (receivedString == "NodeBreached") {
         serial.writeLine("Node Detect Intruder")
@@ -49,9 +42,6 @@ radio.onReceivedString(function (receivedString) {
         }
     }
 })
-input.onButtonPressed(Button.B, function () {
-	
-})
 function worker () {
     strip.showColor(neopixel.colors(NeoPixelColors.White))
 }
@@ -60,7 +50,6 @@ let AlarmStatus = 0
 let IsThereIntruder = 0
 let strip: neopixel.Strip = null
 let WorkingTimeOrNot = 0
-WorkingTimeOrNot = 0
 led.enable(false)
 strip = neopixel.create(DigitalPin.P16, 8, NeoPixelMode.RGB)
 let ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
@@ -72,7 +61,7 @@ serial.redirectToUSB()
 if (esp8266.isWifiConnected()) {
     serial.writeLine("CT -" + esp8266.getHour() + ":" + esp8266.getMinute())
 }
-basic.forever(function () {
+loops.everyInterval(1000, function () {
     if (pins.digitalReadPin(DigitalPin.P3) == 1) {
         serial.writeLine("Pintu Buka")
         if (WorkingTimeOrNot == 1 && AlarmStatus == 0) {
@@ -106,21 +95,23 @@ basic.forever(function () {
             strip.showColor(neopixel.hsl(0, 0, 0))
         }
     }
-    if (input.buttonIsPressed(Button.B)) {
+})
+basic.forever(function () {
+    if (input.buttonIsPressed(Button.B) && !(input.buttonIsPressed(Button.A))) {
         music.playTone(262, music.beat(BeatFraction.Whole))
         basic.pause(200)
         serial.writeLine("Button Pressed")
-        if (input.buttonIsPressed(Button.B)) {
+        if (input.buttonIsPressed(Button.B) && !(input.buttonIsPressed(Button.A))) {
             music.playTone(262, music.beat(BeatFraction.Whole))
             basic.pause(200)
             SecurityPin = 0
             serial.writeLine("Button Pressed")
-            if (input.buttonIsPressed(Button.A)) {
+            if (input.buttonIsPressed(Button.A) && !(input.buttonIsPressed(Button.B))) {
                 music.playTone(262, music.beat(BeatFraction.Whole))
                 basic.pause(200)
                 SecurityPin = 0
                 serial.writeLine("Button Pressed")
-                if (input.buttonIsPressed(Button.A)) {
+                if (input.buttonIsPressed(Button.A) && !(input.buttonIsPressed(Button.B))) {
                     music.playTone(262, music.beat(BeatFraction.Whole))
                     basic.pause(200)
                     serial.writeLine("Button Pressed")
@@ -133,7 +124,7 @@ basic.forever(function () {
     }
     if (input.buttonIsPressed(Button.AB)) {
         music.playTone(262, music.beat(BeatFraction.Whole))
-        if (0 == 0) {
+        if (pins.digitalReadPin(DigitalPin.P3) == 0 || false) {
             AlarmStatus = 1
             SecurityPin = 0
         }
