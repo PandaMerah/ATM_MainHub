@@ -1,7 +1,19 @@
 function NotiMainBreached () {
     radio.sendString("MainBreached")
-    esp8266.sendTelegramMessage("5015383270:AAG7rdYAe3gHnLXiWF_MZEs67rWJg-bUH8o", "695144713", "PENCEROBOH PADA PINTU UTAMA")
 }
+input.onButtonPressed(Button.A, function () {
+    ds.DateTime(
+    2022,
+    3,
+    24,
+    4,
+    18,
+    46,
+    0
+    )
+    serial.writeLine("Current Time : " + ds.getHour() + ":" + ds.getMinute())
+    serial.writeLine("Current Date : " + ds.getDay() + "/" + ds.getMonth() + "/" + ds.getYear())
+})
 function intruder () {
     if (pins.digitalReadPin(DigitalPin.P4) == 1) {
         alarm()
@@ -27,16 +39,12 @@ function alarm () {
     convertToText(0)
     ], MelodyOptions.ForeverInBackground)
 }
-function WaitForKeypin () {
-	
-}
 function Light () {
 	
 }
 radio.onReceivedString(function (receivedString) {
     if (receivedString == "NodeBreached") {
         serial.writeLine("Node Detect Intruder")
-        esp8266.sendTelegramMessage("5015383270:AAG7rdYAe3gHnLXiWF_MZEs67rWJg-bUH8o", "695144713", "PENCEROBOH PADA PINTU LAIN")
         alarm()
         while (true) {
             strip.showColor(neopixel.colors(NeoPixelColors.Red))
@@ -56,15 +64,14 @@ let AlarmStatus = 0
 let WorkingTimeOrNot = 0
 let IsThereIntruder = 0
 let strip: neopixel.Strip = null
+let ds: DS1302.DS1302RTC = null
 serial.writeLine("____________SYSTEM INITIALIZING____________")
-let ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
+ds = DS1302.create(DigitalPin.P13, DigitalPin.P14, DigitalPin.P15)
 ds.start()
 led.enable(false)
 strip = neopixel.create(DigitalPin.P16, 8, NeoPixelMode.RGB)
 esp8266.init(SerialPin.P2, SerialPin.P1, BaudRate.BaudRate115200)
 esp8266.connectWiFi("PandaRouter", "Panda1234")
-esp8266.initInternetTime(8)
-esp8266.updateInternetTime()
 serial.redirectToUSB()
 serial.writeLine("Current Time : " + ds.getHour() + ":" + ds.getMinute())
 serial.writeLine("Current Date : " + ds.getDay() + "/" + ds.getMonth() + "/" + ds.getYear())
