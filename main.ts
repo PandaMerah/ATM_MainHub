@@ -39,9 +39,6 @@ function alarm () {
     convertToText(0)
     ], MelodyOptions.ForeverInBackground)
 }
-function Light () {
-	
-}
 radio.onReceivedString(function (receivedString) {
     if (receivedString == "NodeBreached") {
         serial.writeLine("Node Detect Intruder")
